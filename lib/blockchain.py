@@ -28,6 +28,8 @@ interval = target_timespan / target_spacing # 576
 #max_target = 0x00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 max_target = 0x00000ffff0000000000000000000000000000000000000000000000000000000
 
+#START_CALC_HEIGHT = 68589
+START_CALC_HEIGHT = 70560
 
 def bits_to_target(bits):
     """Convert a compact representation to a hex target."""
@@ -92,7 +94,7 @@ class Blockchain():
             # TODO PoW difficulty calculation #
 
             bits, target = self.get_target(height, chain)
-            if bits != header.get('bits') and height >= 34140:
+            if bits != header.get('bits') and height > START_CALC_HEIGHT:
                 self.print_error("bits mismatch: %s vs %s"
                                  % (bits, header.get('bits')))
                 return False
@@ -130,7 +132,7 @@ class Blockchain():
             chain.append(header)
             _hash = self.hash_header(header)
             assert previous_hash == header.get('prev_block_hash')
-            if height >= 34140:
+            if height > START_CALC_HEIGHT:
                 bits, target = self.get_target(height, chain)
                 assert bits == header.get('bits'), '{}:: Ours: {} - theirs: {}'.format(height, hex(bits), hex(header.get('bits')))
                 assert int('0x'+_hash,16) < target
@@ -291,7 +293,7 @@ class Blockchain():
 
         if height == 0: return target_to_bits(max_target), max_target
 
-        if height >= 34140:
+        if height > START_CALC_HEIGHT:
             return self.get_target_dgw(height, chain)
 
 
