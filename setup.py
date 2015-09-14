@@ -39,7 +39,7 @@ setup(
     ],
     package_dir={
         'electrum_dash': 'lib',
-        'electrum_dash__gui': 'gui',
+        'electrum_dash_gui': 'gui',
         'electrum_dash_plugins': 'plugins',
     },
     packages=['electrum_dash','electrum_dash_gui','electrum_dash_gui.qt','electrum_dash_plugins'],

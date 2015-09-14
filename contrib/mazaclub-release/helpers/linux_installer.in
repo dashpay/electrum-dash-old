@@ -1,0 +1,125 @@
+#!/bin/bash
+error() {
+  printf '\E[31m'; echo "$@"; printf '\E[0m'
+}
+success_msg (){
+  printf '\E[32m'; echo "$@"; printf '\E[0m'
+}
+
+  
+if [[ $EUID -eq 0 ]]; then
+   error "This script should not be run using sudo or as the root user"
+   exit 1
+fi
+PREFIX="/"
+
+echo ""
+echo "Electrum-DASH-ELECTRUM_VERSION for Linux-x86_64"
+echo "by mazaclub - Lead Author, Tyler Willis, release manager, Rob Nelson"
+echo ""
+echo "based on Electrum, By Thomas Voegtlin"
+echo "Global install Requires root privileges, installs Electrum-DASH"
+echo ""
+echo "Extracting file into /tmp/Electrum-DASH-ELECTRUM_VERSION"
+SKIP=`awk '/^__TARFILE_FOLLOWS__/ { print NR + 1; exit 0; }' $0`
+
+#remember our file name
+THIS=`pwd`/$0
+
+# take the tarfile and pipe it into tar
+tail -n +$SKIP $THIS | tar -C /tmp -xpvz
+
+# Any script here will happen after the tar file extract.
+success (){
+ cat /tmp/Electrum-DASH-ELECTRUM_VERSION/README-Linux-x86_64.md
+ success_msg  "Electrum-DASH-ELECTRUM_VERSION is installed to ${DIR} - start script in ${BINDIR}"
+ error "Remember to save your seeds in a safe place!!" 
+ success_msg "Finished"
+ exit 0
+}
+
+check_arch (){
+if [ "$(uname -p)" != "x86_64" ]
+then
+   error "Electrum-DASH for Linux supports x86_64 machines only"
+   error "You're recommended to use a source installation:"
+   error "git clone https://github.com/mazaclub/electrum-dash"
+   error "cd electrum-dash"
+   error "git checkout ELECTRUM_VERSION"
+   error "pyrcc4 icons.prc -o gui/qt/icons_qrc.py"
+   error "sudo apt-get install python-qt4 pip"
+   error "sudo pip install --upgrade -r requirements.txt"
+   error "sudo python setup.py install"
+   exit 2
+fi
+}
+
+install_electrum-dash() {
+     cat /tmp/Electrum-DASH-ELECTRUM_VERSION/LICENSE
+     success_msg "Installing to ${DIR}/electrum-dash" \
+      && test -d ${DIR} || ${SUDO} mkdir -p ${DIR} \
+      && test -d ${BINDIR} || ${SUDO}  mkdir -p ${BINDIR} \
+      && ${SUDO} mkdir -p ${SHAREDIR}/app-install/icons \
+      && ${SUDO} cp /tmp/Electrum-DASH-ELECTRUM_VERSION/electrum-dash.png ${SHAREDIR}/app-install/icons/electrum-dash.png \
+      && ${SUDO} mkdir -pv ${DIR}/electrum-dash \
+      && ${SUDO} cp -a /tmp/Electrum-DASH-ELECTRUM_VERSION/electrum-dash ${DIR} \
+      && seddir=$(echo "${DIR}" | sed 's/\//\\\//g') \
+      && sed -e 's/INSTALL_DIR/'${seddir}'/g' /tmp/Electrum-DASH-ELECTRUM_VERSION/electrum-dash.sh > /tmp/Electrum-DASH-ELECTRUM_VERSION/electrum-dash-bindir.sh \
+      && ${SUDO} mv /tmp/Electrum-DASH-ELECTRUM_VERSION/electrum-dash-bindir.sh ${BINDIR}/electrum-dash \
+      && ${SUDO} chmod 555 ${BINDIR}/electrum-dash  \
+      && ${SUDO} cp /tmp/Electrum-DASH-ELECTRUM_VERSION/electrum-dash.desktop ${SHAREDIR}/applications/ \
+      && success_msg "Electrum-DASH-ELECTRUM_VERSION installation successful" \
+      && success_msg "To start electrum-dash run ${DIR}/electrum-dash/electrum-dash " \
+      && success_msg "Your wallets will be in ${HOME}/.electrum-dash/wallets" \
+      && if [ "${SUDO}X" = "X" ] ; then
+            echo "You might wish to add ${HOME}/electrum-dash to your PATH"
+	    echo "and copy ${HOME}/electrum-dash/90-trezor.rules to /etc/udev/rules.d"
+         else 
+           ${SUDO} cp /tmp/Electrum-DASH-ELECTRUM_VERSION/90-trezor.rules /etc/udev/rules.d   
+         fi \
+      && success
+}
+
+get_config () {
+  cd /tmp/Electrum-DASH-ELECTRUM_VERSION
+  success_msg "Electrum-DASH has been extracted to /tmp/Electrum-DASH-ELECTRUM_VERSION"
+  echo "This install script will be available at /tmp/Electrum-DASH/ELECTRUM_VERSION/linux_installer.sh"
+  echo " "
+  echo "Would you like to install Electrum-DASH to:"
+  echo "1) /opt/electrum-dash"
+  echo "2) $HOME/electrum-dash"
+  echo "3) Bail - Don't install Electrum-DASH!"
+  read dir
+  case ${dir} in 
+    1) export DIR="/opt"
+       BINDIR="/usr/local/bin"
+       SHAREDIR="/usr/share"
+       SUDO="sudo" 
+       install_electrum-dash
+       ;;
+    2) export DIR="${HOME}"
+       SUDO=""
+       BINDIR="${HOME}/electrum-dash"
+       SHAREDIR="${HOME}/.local/share"
+       install_electrum-dash 
+       ;;
+     3) error "Not installing electrum-dash" 
+        error "You can view electrum-dash in /tmp/Electrum-DASH-ELECTRUM_VERSION"
+        error "Along with the full contents of this installer."
+        exit 0
+	;;
+     *) error "Please choose 1, 2, or 3"
+        get_config 
+        ;;
+  esac 
+}  
+error "Installing Electrum-DASH-ELECTRUM_VERSION"
+echo ""
+check_arch
+get_config
+
+error "Install appears to have failed - please ensure you have root permissions and try again"
+exit 1
+
+# NOTE: Don't place any newline characters after the last line below.
+__TARFILE_FOLLOWS__

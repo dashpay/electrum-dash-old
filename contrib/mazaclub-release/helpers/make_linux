@@ -1,0 +1,44 @@
+#!/bin/bash 
+
+VERSION="${1}"
+test -z ${VERSION} && exit 1 
+
+test -d /root/electrum-dash-release/helpers/release-packages/Linux \
+ && rm -rf /root/electrum-dash-release/helpers/release-packages/Linux
+cd /root/repo
+rm -rf build dist packages
+test -f /root/linux_installer.sh && rm /root/linux_installer.sh
+find ./ -name '*.pyc' | xargs rm
+
+set -xeo pipefail
+mkdir packages
+pip install  --target packages -r ../requirements.txt
+#pip install --upgrade --target packages -r ../requirements.txt
+cp  /root/electrum-dash-release/python-trezor/trezorctl packages/trezorctl.py
+cp -av /root/packages/google/__init__.py /root/repo/packages/google
+cp /root/electrum-dash-release/source/linux.spec /root/repo
+su build -c 'pyinstaller --windowed linux.spec'
+cd dist
+#mv electrum-dash Electrum-DASH-"${VERSION}"
+#put installer script in here
+mkdir /root/electrum-dash-release/helpers/release-packages/Linux
+sed -e 's/ELECTRUM_VERSION/'${VERSION}'/g' /root/linux_installer.in > /tmp/linux_installer.sh
+cp /tmp/linux_installer.sh /root
+chmod 755 /root/linux_installer.sh
+mkdir Electrum-DASH-${VERSION}
+mv electrum-dash Electrum-DASH-${VERSION}
+cp /root/repo/icons/electrum-dash.png Electrum-DASH-${VERSION}
+cp /root/repo/README-Linux-x86_64.md Electrum-DASH-${VERSION}
+cp /root/repo/LICENSE Electrum-DASH-${VERSION}
+cp /root/repo/RELEASE-NOTES Electrum-DASH-${VERSION}
+cp /root/repo/AUTHORS Electrum-DASH-${VERSION}
+cp /root/90-trezor.rules Electrum-DASH-${VERSION}
+cp /root/electrum-dash_linux_startup.sh Electrum-DASH-${VERSION}/electrum-dash.sh
+cp /root/repo/electrum-dash.desktop Electrum-DASH-${VERSION}
+sed -e '/tail/d' /root/linux_installer.sh > Electrum-DASH-${VERSION}/linux_installer.sh
+tar -cpzvf Electrum-DASH-"${VERSION}"_Linux_x86_64.tgz Electrum-DASH-"${VERSION}"
+cat /root/linux_installer.sh Electrum-DASH-"${VERSION}"_Linux_x86_64.tgz > /root/electrum-dash-release/helpers/release-packages/Linux/Electrum-DASH-"${VERSION}"_Linux_x86_64-Installer.bin
+chmod 555 /root/electrum-dash-release/helpers/release-packages/Linux/Electrum-DASH-"${VERSION}"_Linux_x86_64-Installer.bin
+
+#mv Electrum-DASH-"${VERSION}"_Linux-x86_64.tgz /root/electrum-dash-release/helpers/release-packages/Linux
+

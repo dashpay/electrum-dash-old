@@ -1,0 +1,35 @@
+#!/bin/bash
+source /root/build-config.sh
+source /root/build-common.sh
+check_vars
+
+if [[ -z "$1" ]]; then
+	echo "Please supply version number"
+	exit
+else
+	VERSION=$1
+fi
+
+function cleanup(){
+	# Remove stale wine sockets
+	rm -rf /tmp/.wine-*
+}
+
+cleanup
+
+SOURCEDIR=/opt/wine-electrum/drive_c/electrum-dash/Electrum-DASH-$VERSION
+
+
+cd $SOURCEDIR
+
+$PYTHON "C:/PyInstaller/pyinstaller.py" -y "C:/electrum-dash/deterministic.spec"
+cp /opt/wine-electrum/drive_c/electrum-dash/electrum-dash.nsi $SOURCEDIR/
+
+echo "Running c:/electrum-dash/Electrum-DASH-$VERSION/electrum-dash.nsi for install"
+xvfb-run wine c:\\"Program Files"\\NSIS\\makensis.exe -V1 c:/electrum-dash/Electrum-DASH-$VERSION/electrum-dash.nsi
+
+
+cleanup
+test -d /root/release-packages/Windows || mkdir -pv /root/release-packages/Windows
+mv /opt/wine-electrum/drive_c/electrum-dash/Electrum-DASH-${VERSION}/dist/electrum-dash-setup.exe /root/release-packages/Windows/Electrum-DASH-${VERSION}-Windows-setup.exe
+mv /opt/wine-electrum/drive_c/electrum-dash/Electrum-DASH-${VERSION}/dist/electrum-dash.exe /root/release-packages/Windows/Electrum-DASH-${VERSION}-Windows.exe

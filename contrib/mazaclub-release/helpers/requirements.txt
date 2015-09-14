@@ -1,0 +1,10 @@
+slowaes==0.1a1
+ecdsa==0.13
+pbkdf2==1.3
+requests==2.5.1
+qrcode==5.1
+hidapi>=0.7.99
+protobuf==2.5.0
+dnspython
+git+https://github.com/guruvan/darkcoin_hash#egg=darkcoin_hash
+git+https://github.com/mazaclub/python-trezor#egg=trezor
