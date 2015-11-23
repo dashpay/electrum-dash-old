@@ -32,9 +32,6 @@ setup(
     name="Electrum-DASH",
     version=version.ELECTRUM_VERSION,
     install_requires=requirements,
-    dependency_links=[
-        'git+https://github.com/mazaclub/x11_hash@1.4#egg=x11_hash-1.4'
-    ],
     package_dir={
         'electrum_dash': 'lib',
         'electrum_dash_gui': 'gui',
