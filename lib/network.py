@@ -45,7 +45,11 @@ import masternode_manager
 
 DEFAULT_PORTS = {'t':'50001', 's':'50002', 'h':'8081', 'g':'8082'}
 
-TESTNET_SERVERS = {}
+TESTNET_SERVERS = {
+    'test.electrum-dash.org':DEFAULT_PORTS,                 # flare
+    'test.electrum.masternode.io':DEFAULT_PORTS,            # coingun
+    'electrum.dash.siampm.com': {'t':'51001', 's':'51002'}, # thelazier
+}
 MAINNET_SERVERS = {
     'electrum.darkcointalk.org':DEFAULT_PORTS, # propulsion
     'drk1.electrum-servers.us':DEFAULT_PORTS,  # elm4ever

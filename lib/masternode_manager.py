@@ -13,7 +13,7 @@ from electrum_dash.util import format_satoshis_plain
 BUDGET_FEE_CONFIRMATIONS = 6
 BUDGET_FEE_TX = 5 * bitcoin.COIN
 # From masternode.h
-MASTERNODE_MIN_CONFIRMATIONS = 15
+MASTERNODE_MIN_CONFIRMATIONS = 1
 
 MasternodeConfLine = namedtuple('MasternodeConfLine', ('alias', 'addr',
         'wif', 'txid', 'output_index'))

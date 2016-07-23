@@ -41,7 +41,7 @@ import x11_hash
 # If you change its value, be sure to delete your 'recent_servers' file.
 # You may also need to remove the 'server' option from your config file.
 # Otherwise, you may end up getting headers for the wrong chain!
-TESTNET = False
+TESTNET = True
 PUBKEY_ADDR = 140 if TESTNET else 76
 SCRIPT_ADDR = 19 if TESTNET else 16
 WIF = 239 if TESTNET else 204
@@ -728,7 +728,7 @@ def deserialize_xkey(xkey):
     return depth, fingerprint, child_number, c, K_or_k
 
 
-def get_xkey_name(xkey, testnet=False):
+def get_xkey_name(xkey, testnet=True):
     depth, fingerprint, child_number, c, K = deserialize_xkey(xkey)
     n = int(child_number.encode('hex'), 16)
     if n & BIP32_PRIME:
@@ -743,7 +743,7 @@ def get_xkey_name(xkey, testnet=False):
         raise BaseException("xpub depth error")
 
 
-def xpub_from_xprv(xprv, testnet=False):
+def xpub_from_xprv(xprv, testnet=True):
     depth, fingerprint, child_number, c, k = deserialize_xkey(xprv)
     K, cK = get_pubkeys_from_secret(k)
     header_pub, _  = _get_headers(testnet)
@@ -751,7 +751,7 @@ def xpub_from_xprv(xprv, testnet=False):
     return EncodeBase58Check(xpub)
 
 
-def bip32_root(seed, testnet=False):
+def bip32_root(seed, testnet=True):
     header_pub, header_priv = _get_headers(testnet)
     I = hmac.new("Bitcoin seed", seed, hashlib.sha512).digest()
     master_k = I[0:32]
@@ -762,7 +762,7 @@ def bip32_root(seed, testnet=False):
     return EncodeBase58Check(xprv), EncodeBase58Check(xpub)
 
 
-def xpub_from_pubkey(cK, testnet=False):
+def xpub_from_pubkey(cK, testnet=True):
     header_pub, header_priv = _get_headers(testnet)
     assert cK[0] in ['\x02','\x03']
     master_c = chr(0)*32
@@ -770,7 +770,7 @@ def xpub_from_pubkey(cK, testnet=False):
     return EncodeBase58Check(xpub)
 
 
-def bip32_private_derivation(xprv, branch, sequence, testnet=False):
+def bip32_private_derivation(xprv, branch, sequence, testnet=True):
     assert sequence.startswith(branch)
     if branch == sequence:
         return xprv, xpub_from_xprv(xprv, testnet)
@@ -793,7 +793,7 @@ def bip32_private_derivation(xprv, branch, sequence, testnet=False):
     return EncodeBase58Check(xprv), EncodeBase58Check(xpub)
 
 
-def bip32_public_derivation(xpub, branch, sequence, testnet=False):
+def bip32_public_derivation(xpub, branch, sequence, testnet=True):
     header_pub, _ = _get_headers(testnet)
     depth, fingerprint, child_number, c, cK = deserialize_xkey(xpub)
     assert sequence.startswith(branch)

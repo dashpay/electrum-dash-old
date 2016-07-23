@@ -353,10 +353,8 @@ def time_difference(distance_in_time, include_seconds):
         return "over %d years" % (round(distance_in_minutes / 525600))
 
 block_explorer_info = {
-    'Dash.org': ('http://explorer.dash.org',
+    'Dash.org': ('http://test.explorer.dash.org',
                         {'tx': 'tx', 'addr': 'address'}),
-    'Bchain.info': ('https://bchain.info/DASH',
-                        {'tx': 'tx', 'addr': 'addr'}),
 }
 
 def block_explorer(config):
