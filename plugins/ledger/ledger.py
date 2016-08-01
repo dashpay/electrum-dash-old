@@ -89,12 +89,15 @@ class BTChipWallet(BIP44_HW_Wallet):
             else:
                 childnum = 0x80000000 | int(lastChild[0])
             xpub = "0488B21E".decode('hex') + chr(depth) + self.i4b(fingerprint) + self.i4b(childnum) + str(nodeData['chainCode']) + str(publicKey)
+            print('xpub: %s' % xpub)
         except Exception, e:
             self.give_error(e, True)
         finally:
             self.handler.clear_dialog()
-
-        return EncodeBase58Check(xpub)
+        
+        abc = EncodeBase58Check(xpub)
+        print('abc: %s' % abc)
+        return abc
 
     def decrypt_message(self, pubkey, message, password):
         self.give_error("Not supported")
